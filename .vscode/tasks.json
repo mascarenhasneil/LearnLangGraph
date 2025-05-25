@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Activate venv",
+            "type": "shell",
+            "command": ".venv\\Scripts\\Activate.ps1",
+            "problemMatcher": []
+        }
+    ]
+}
