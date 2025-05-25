@@ -1,0 +1,29 @@
+{
+    // See https://go.microsoft.com/fwlink/?linkid=830387 for documentation
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Activate Python venv",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env", // Path to your .env file
+            "preLaunchTask": "Activate venv"
+            
+        },
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "justMyCode": true,
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {},
+            "envFile": "${workspaceFolder}/.env", // Path to your .env file
+            "preLaunchTask": "Activate venv"
+        }
+    ]
+}

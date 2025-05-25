@@ -1,0 +1,69 @@
+{
+    "folders": [
+        {
+            "name": "",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "git-graph.repository.showRemoteBranches": false,
+        "git-graph.repository.showRemoteHeads": false,
+        "git.checkoutType": [
+            "local"
+        ],
+        "git.confirmSync": true,
+        "github.copilot.chat.reviewSelection.enabled": true,
+        "git.showActionButton": {
+            "sync": false,
+            "publish": false
+        },
+        "chat.promptFiles": true,
+        "chat.promptFilesLocations": {
+            ".github/prompts": true,
+            ".vscode/prompts": true
+        },
+        "chat.instructionsFilesLocations": {
+            ".github/instructions": true,
+            ".vscode/instructions": true
+        },
+        "github.copilot.chat.codeGeneration.instructions": [
+            {
+                "file": ".github/instructions/coding-guidelines.instructions.md"
+            }
+        ],
+        "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
+            {
+                "file": ".github/instructions/pull-request-description.instructions.md"
+            }
+        ],
+        "github.copilot.chat.commitMessageGeneration.instructions": [
+            {
+                "file": ".github/instructions/git-message.instructions.md"
+            }
+        ],
+        "github.copilot.chat.reviewSelection.instructions": [
+            {
+                "file": ".github/instructions/coding-guidelines.instructions.md"
+            },
+            {
+                "file": ".github/instructions/coding-style.instructions.md"
+            }
+        ],
+        "github.copilot.chat.testGeneration.instructions": [
+            {
+                "file": ".github/instructions/testing-xunit.instructions.md"
+            }
+        ],
+        "notebook.defaultFormatter": "ms-python.black-formatter",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.analysis.typeCheckingMode": "basic",
+    
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportOptionalMemberAccess": "none",
+        "reportAssignmentType": "none"
+    },
+    "python.analysis.autoFormatStrings": true,
+    "markdown-preview-enhanced.hideDefaultVSCodeMarkdownPreviewButtons": false,
+    "git.postCommitCommand": "none"
+}
+}
