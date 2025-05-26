@@ -16,7 +16,16 @@
         "ms-toolsai.jupyter-renderers",
         "ms-toolsai.vscode-jupyter-cell-tags",
         "ms-toolsai.vscode-jupyter-powertoys",
-        "ms-toolsai.vscode-jupyter-slideshow"
+        "ms-toolsai.vscode-jupyter-slideshow",
+        "streetsidesoftware.code-spell-checker",
+        "eamodio.gitlens",
+        "vscode-icons-team.vscode-icons",
+        "GitHub.vscode-pull-request-github",
+        "redhat.vscode-yaml",
+        "jithurjacob.nbpreviewer",
+        "usernamehw.errorlens"
+
+
     ]
 
 }
