@@ -66,6 +66,8 @@
     "markdown-preview-enhanced.hideDefaultVSCodeMarkdownPreviewButtons": false,
     "git.postCommitCommand": "none",
     "cSpell.ignoreWords": [
+        "ipynb",
+        "jupyternotebook",
         "subtractor"
     ]
 }
