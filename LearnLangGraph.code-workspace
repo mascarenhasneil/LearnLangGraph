@@ -64,6 +64,9 @@
     },
     "python.analysis.autoFormatStrings": true,
     "markdown-preview-enhanced.hideDefaultVSCodeMarkdownPreviewButtons": false,
-    "git.postCommitCommand": "none"
+    "git.postCommitCommand": "none",
+    "cSpell.ignoreWords": [
+        "subtractor"
+    ]
 }
 }
