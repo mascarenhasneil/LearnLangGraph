@@ -69,6 +69,9 @@
         "ipynb",
         "jupyternotebook",
         "subtractor"
-    ]
+    ],
+    "editor.fontLigatures": true,
+    "editor.fontFamily": "Monaspace Neon, CaskaydiaCove NF, Cascadia Code, Consolas NF, Inconsolata NF, Consolas, Courier New, monospace",
+    "terminal.integrated.fontLigatures.enabled": true
 }
 }
