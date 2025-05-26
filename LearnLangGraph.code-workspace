@@ -57,21 +57,21 @@
         "notebook.defaultFormatter": "ms-python.black-formatter",
         "python.terminal.activateEnvInCurrentTerminal": true,
         "python.analysis.typeCheckingMode": "basic",
-    
-    "python.analysis.diagnosticSeverityOverrides": {
-        "reportOptionalMemberAccess": "none",
-        "reportAssignmentType": "none"
-    },
-    "python.analysis.autoFormatStrings": true,
-    "markdown-preview-enhanced.hideDefaultVSCodeMarkdownPreviewButtons": false,
-    "git.postCommitCommand": "none",
-    "cSpell.ignoreWords": [
-        "ipynb",
-        "jupyternotebook",
-        "subtractor"
-    ],
-    "editor.fontLigatures": true,
-    "editor.fontFamily": "Monaspace Neon, CaskaydiaCove NF, Cascadia Code, Consolas NF, Inconsolata NF, Consolas, Courier New, monospace",
-    "terminal.integrated.fontLigatures.enabled": true
-}
+        "python.analysis.diagnosticSeverityOverrides": {
+            "reportOptionalMemberAccess": "none",
+            "reportAssignmentType": "none"
+        },
+        "python.analysis.autoFormatStrings": true,
+        "markdown-preview-enhanced.hideDefaultVSCodeMarkdownPreviewButtons": false,
+        "git.postCommitCommand": "none",
+        "cSpell.ignoreWords": [
+            "ipynb",
+            "jupyternotebook",
+            "subtractor",
+            "Agentexercise"
+        ],
+        "editor.fontLigatures": true,
+        "editor.fontFamily": "Monaspace Neon, CaskaydiaCove NF, Cascadia Code, Consolas NF, Inconsolata NF, Consolas, Courier New, monospace",
+        "terminal.integrated.fontLigatures.enabled": true
+    }   
 }
