@@ -1,0 +1,11 @@
+# https://github.com/Vaibhav807/LangGraph-Course/blob/main/requirements.txt
+
+langgraph
+langchain
+ipython
+langchain_openai
+langchain_community
+dotenv
+typing
+chromadb
+langchain_chroma
