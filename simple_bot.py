@@ -1,12 +1,27 @@
 """
+Simple Bot - Integrating Language Models with a Graph-based Workflow
+
 Objectives:
- 1. Define state structure with a list of HumanMessage objects.
- 2. Initialize a GPT-4o model using LangChain's ChatOpenAI
- 3. Sending and handling different types of messages
- 4. Building and compiling the graph of the Agent
+ 1. Define the AgentState structure using a list of HumanMessage objects to represent the
+    conversation state.
+ 2. Initialize a high-performance GPT-4.1 nano model via LangChain's ChatOpenAI for efficient
+    handling of language generation tasks.
+ 3. Enable robust handling of different message types to seamlessly bridge human inputs and AI responses.
+ 4. Construct and compile a state graph using the LangGraph library to model the agent's processing
+    workflow.
+ 5. Demonstrate modular design by clearly separating the logic for state management, graph compilation,
+    and message processing.
+ 6. Facilitate interactive testing with a command-line interface that supports both single-message
+    and continuous chat interactions.
 
- Main Goal: How to integrate LLMs in our Graphs
+Main Goal:
+    Showcase how to effectively integrate advanced language models within a stateful graph framework,
+    promoting clean, maintainable, and testable code as per functional and modular design principles.
 
+Additional Notes:
+    - The code adheres to PEP 8 and Google Python Style guidelines.
+    - Environment variables are managed via dotenv, ensuring secure configuration handling.
+    - Type hints and structured logging (if extended) aid in debugging and static analysis.
 """
 
 from typing import List, TypedDict
