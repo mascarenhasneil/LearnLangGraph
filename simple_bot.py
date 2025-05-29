@@ -50,7 +50,27 @@ graph.add_edge(start_key="process", end_key=END)
 
 agent = graph.compile()
 
+chat_type = input("""Welcome to the Simple Bot!
+    Choose a chat type:
+    1. Only 1 Human Message
+    2. Chat with AI Messages
+    Enter 1 or 2: 
+"""
+)
+
+# Validate user input for chat type if not 1 or 2 then exit the program
+if chat_type not in ["1", "2"]:
+    print("Invalid choice. Please enter 1 or 2.")
+    exit()
+
 user_input = input("You: ")
 
-# code above initializes a simple agent that processes human messages using a GPT-4.1 nano model.
-agent.invoke(input={"messages": [HumanMessage(content=user_input)]})
+# Get user input based on the selected chat type
+if chat_type == "2":
+    # initializes a simple agent that processes human messages using a GPT-4.1 nano model.
+    while user_input.lower() != "exit":
+        agent.invoke(input={"messages": [HumanMessage(content=user_input)]})
+        user_input = input("You: ")
+else:
+    agent.invoke(input={"messages": [HumanMessage(content=user_input)]})
+    exit()
