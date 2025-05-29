@@ -19,7 +19,6 @@ Main Goal:
     promoting clean, maintainable, and testable code as per functional and modular design principles.
 
 Additional Notes:
-    - The code adheres to PEP 8 and Google Python Style guidelines.
     - Environment variables are managed via dotenv, ensuring secure configuration handling.
     - Type hints and structured logging (if extended) aid in debugging and static analysis.
 """
