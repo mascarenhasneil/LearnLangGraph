@@ -62,3 +62,23 @@ def process(state: AgentState) -> AgentState:
     return state
 
 
+def main() -> None:
+    """Main function to run the conversation loop for the chatbot agent."""
+    
+    graph = StateGraph(AgentState)
+    graph.add_node(node="process", action=process)
+    graph.add_edge(start_key=START, end_key="process")
+    graph.add_edge(start_key="process", end_key=END)
+    agent = graph.compile()
+
+    conversation_history: List[Union[HumanMessage, AIMessage]] = []
+    user_input = input("\n\nWelcome to the Chatbot! Type your message (or 'exit' to quit): ")
+
+    while user_input.lower() != "exit":
+        conversation_history.append(HumanMessage(content=user_input))
+        agent.invoke({"messages": conversation_history})
+        user_input = input("\nYou: ")
+
+
+if __name__ == "__main__":
+    main()
