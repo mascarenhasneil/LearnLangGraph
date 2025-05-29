@@ -42,3 +42,23 @@ class AgentState(TypedDict):
     messages: List[Union[HumanMessage, AIMessage]]
 
 
+# Initialize the ChatOpenAI model with desired configuration.
+llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0.0)
+
+
+def process(state: AgentState) -> AgentState:
+    """Processes the agent's state and generates an AI response.
+
+    Args:
+        state: The current state of the agent containing conversation messages.
+
+    Returns:
+        The updated agent state with the AI response appended.
+    """
+    response = llm.invoke(state["messages"])
+    state["messages"].append(AIMessage(content=response.content))
+    print(f"\nAI: {response.content}\n")
+    print(f"Conversation log: {state['messages']}")
+    return state
+
+
