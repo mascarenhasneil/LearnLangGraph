@@ -192,3 +192,18 @@ def create_agent() -> CompiledStateGraph:
     agent = graph.compile()  # Compile the graph to create the agent
     return agent
 
+def run_brainstormer_agent():
+    """Runs the brainstorming agent."""
+    agent = create_agent()  # Create the agent
+    state: AgentState = {"messages": []}  # Initialize the state with an empty message list
+
+    for step in agent.stream(input=state,stream_mode = "values"):
+        if "messages" in step:
+            print_messages(step["messages"])
+            
+    print("\nBrainstorming session ended. Thank you for using the Brainstormer agent!")
+    
+    
+if __name__ == "__main__":
+    run_brainstormer_agent()  # Run the brainstorming agent when the script is executed
+
