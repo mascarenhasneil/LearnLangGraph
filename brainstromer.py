@@ -133,3 +133,32 @@ def brainstormer_agent(state: AgentState) -> AgentState:
 
 
 
+def should_continue(state : AgentState) -> str:
+    """Determines whether the conversation should continue based on the last message."""
+    messages : str = state["messages"]
+    
+    if not messages:
+        return "continue"
+
+    for message in reversed(messages):
+        if (isinstance(message,ToolMessage) and 
+            "saved" in message.content.lower() and      # type: ignore[reportAttributeAccessIssue]
+            "document" in message.content.lower()):     # type: ignore[reportAttributeAccessIssue]
+            
+            return "end" # If the last message indicates the document has been saved, end the
+
+    return "continue"
+
+
+def print_messages(messages: list[BaseMessage]):
+    """Prints the messages in the conversation."""
+
+    if not messages:
+        print("No messages in the conversation.")
+        return
+
+    for message in messages[-3:]:
+        if isinstance(message,ToolMessage):
+            print(f"Tool Message: {message.content}")
+            
+
