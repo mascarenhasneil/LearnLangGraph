@@ -9,7 +9,7 @@ seamless interaction with an AI agent.
 
 The Brainstormer class (or agent) includes methods to:
     - Generate a list of creative ideas based on user input.
-    - Append new ideas to the ongoing discussion.
+    - Append new ideas to the ongoing Brainstorming.
     - Save the content of the brainstorming session to an external file
       for later review.
 
@@ -55,7 +55,7 @@ from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from a .env file
 
 
-discussion_content: str = ""
+brainstorming_content: str = ""
 
 
 class AgentState(TypedDict):
@@ -68,44 +68,44 @@ class AgentState(TypedDict):
 
 @tool
 def update(content: str) -> str:
-    """Updates the discussion content with the provided string.
+    """Updates the Brainstorming content with the provided string.
 
     Args:
-        content (str): The content to update the discussion with.
+        content (str): The content to update the Brainstorming with.
 
     Returns:
-        str: The updated discussion content.
+        str: The updated Brainstorming content.
     """
-    global discussion_content
-    discussion_content += f"\n{content}"
-    return discussion_content
+    global brainstorming_content
+    brainstorming_content += f"\n{content}"
+    return brainstorming_content
 
 
 @tool
 def save(filename: str) -> str:
-    """Saves the current discussion content to a document file.
+    """Saves the current Brainstorming content to a document file.
     Args:
-        filename (str): The name of the document to save the discussion content to.
+        filename (str): The name of the document to save the Brainstorming content to.
 
     Returns:
         str: A message indicating that the document has been saved.
     """
-    global discussion_content
+    global brainstorming_content
     if not filename.endswith(".txt"):
         filename += ".txt"
 
     try:
         with open(filename, "w") as file:
-            file.write(discussion_content)
-        return f"Discussion content saved to {filename}."
+            file.write(brainstorming_content)
+        return f"Brainstorming content saved to {filename}."
     except Exception as e:
-        return f"Error saving discussion content to {filename}: {e}"
+        return f"Error saving Brainstorming content to {filename}: {e}"
 
 
 tools = [update, save]
 
 model = ChatOpenAI(
-    model="gpt-4o",  # Specify the model to use
+    model="gpt-4.1-nano",  # Specify the model to use
     temperature=0.7,  # Set the temperature for response variability
 ).bind_tools(
     tools
@@ -116,13 +116,13 @@ def brainstormer_agent(state: AgentState) -> AgentState:
     """Creates a state graph for the brainstorming agent."""
     system_prompt = f"""
         You are a brainstorming agent. Your task is to generate ideas based on the provided prompt.
-        You will receive a prompt from the user, and you should respond with a list of related ideas or suggestions.
+        You should respond with a list of related ideas or suggestions and help user to update or modify the the content. 
            - If you receive a prompt that is not related to brainstorming, respond with an appropriate message.
-           - Always respond with a clear and concise list of ideas.
+           - Always respond with a clear and concise list of only 3 ideas.
            - If the user wants to update or modify content, use the `update` tool to append new ideas.
-           - If the user wants to save the discussion, use the `save` tool with a filename.
+           - If the user wants to save the Brainstorming, use the `save` tool with a filename.
            - Make sure to always show the content document state after modifications.
-        the current discussion content is: {discussion_content}
+        the current Brainstorming content is: {brainstorming_content}
     """
     # Define the system message to set the context for the agent
     system_message = SystemMessage(content=system_prompt)
@@ -133,7 +133,7 @@ def brainstormer_agent(state: AgentState) -> AgentState:
 
     else:
         user_input = input(
-            "\nWhat would you like to do with the brainstorming session? "
+            "\nWhat do you think of this? Want me to update/save it?"
         )
         print(f"\nUser input: {user_input}")
         user_message = HumanMessage(content=user_input)
@@ -164,12 +164,12 @@ def should_continue(state: AgentState) -> str:
         return "continue"
 
     for message in reversed(messages):
+        message_content_lower = message.content.lower() # type: ignore[reportAttributeAccessIssue]
         if (
             isinstance(message, ToolMessage)
-            and "saved"
-            in message.content.lower()                  # type: ignore[reportAttributeAccessIssue]
-            and "document" in message.content.lower()   # type: ignore[reportAttributeAccessIssue]
-        ):  
+            and "saved" in message_content_lower    
+        and ("document" in message_content_lower or "content" in message_content_lower)  
+        ):
 
             return "end"  # If the last message indicates the document has been saved, end the
 
@@ -180,7 +180,6 @@ def print_messages(messages: list[BaseMessage]):
     """Prints the messages in the conversation."""
 
     if not messages:
-        print("No messages in the conversation.")
         return
 
     for message in messages[-3:]:
@@ -205,7 +204,7 @@ def create_agent() -> CompiledStateGraph:
     graph.add_node(node="tools", action=tool_node)
 
     graph.add_conditional_edges(
-        source="brainstormer_agent",
+        source="tools",
         path=should_continue,
         path_map={
             "continue": "brainstormer_agent",  # If the conversation should continue, loop back to the brainstormer_agent node
