@@ -162,3 +162,33 @@ def print_messages(messages: list[BaseMessage]):
             print(f"Tool Message: {message.content}")
             
 
+def create_agent() -> CompiledStateGraph:
+    """Creates and compiles the ReAct Agent graph with the defined nodes and tools.
+    Returns:
+        object: The compiled agent ready for interaction.
+    """
+    graph = StateGraph(AgentState)
+    graph.set_entry_point(
+        "brainstormer_agent"  # Set the entry point of the graph to the brainstormer_agent node
+    )  # Set the entry point of the graph to the agent_node node
+
+    graph.add_node(node="brainstormer_agent", action=brainstormer_agent)  # Add the agent node with the brainstorming action
+    tool_node = ToolNode(tools=tools)
+    graph.add_node(node="tools", action=tool_node)
+
+    graph.add_conditional_edges(
+        source="brainstormer_agent",
+        path=should_continue,
+        path_map={
+            "continue": "brainstormer_agent",  # If the conversation should continue, loop back to the brainstormer_agent node
+            "end": END,
+        },
+    )
+
+    graph.add_edge(
+        start_key="brainstormer_agent", end_key="tools" 
+    )  # Connect the tools node back to the brainstormer_agent node
+
+    agent = graph.compile()  # Compile the graph to create the agent
+    return agent
+
