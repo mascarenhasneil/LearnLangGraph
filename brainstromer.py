@@ -44,3 +44,49 @@ load_dotenv()  # Load environment variables from a .env file
 discussion_content : str = ""
 
 
+class AgentState(TypedDict):
+    """State of the agent containing a list of conversation messages."""
+
+    messages: Annotated[
+        Sequence[BaseMessage], add_messages
+    ]  # Using BaseMessage to allow for different message types, helps manage state updates automatically
+
+
+@tool
+def update(content: str) -> str:
+    """Updates the discussion content with the provided string.
+    
+    Args:
+        content (str): The content to update the discussion with.
+        
+    Returns:
+        str: The updated discussion content.
+    """
+    global discussion_content
+    discussion_content += f"\n{content}"
+    return discussion_content
+
+@tool
+def save(filename: str) -> str:
+    """Saves the current discussion content to a document file.
+    Args:
+        filename (str): The name of the document to save the discussion content to.
+
+    Returns:
+        str: A message indicating that the document has been saved.
+    """
+    global discussion_content
+    if not filename.endswith('.txt'):
+        filename += '.txt'
+        
+    try: 
+        with open(filename, 'w') as file:
+            file.write(discussion_content)
+        return f"Discussion content saved to {filename}."
+    except Exception as e:
+        return f"Error saving discussion content to {filename}: {e}"
+    
+    
+tools = [update, save] 
+
+
