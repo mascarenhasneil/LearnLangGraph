@@ -95,7 +95,7 @@ def save(filename: str) -> str:
         filename += ".txt"
 
     try:
-        with open(filename, "w") as file:
+        with open(filename, mode="w") as file:
             file.write(brainstorming_content)
         return f"Brainstorming content saved to {filename}."
     except Exception as e:
@@ -118,7 +118,7 @@ def brainstormer_agent(state: AgentState) -> AgentState:
         You are a brainstorming agent. Your task is to generate ideas based on the provided prompt.
         You should respond with a list of related ideas or suggestions and help user to update or modify the the content. 
            - If you receive a prompt that is not related to brainstorming, respond with an appropriate message.
-           - Always respond with a clear and concise list of only 3 ideas.
+           - Always respond with a clear and concise list of only 10 ideas.
            - If the user wants to update or modify content, use the `update` tool to append new ideas.
            - If the user wants to save the Brainstorming, use the `save` tool with a filename.
            - Make sure to always show the content document state after modifications.
@@ -128,13 +128,14 @@ def brainstormer_agent(state: AgentState) -> AgentState:
     system_message = SystemMessage(content=system_prompt)
 
     if not state["messages"]:
-        user_input = "\n\nI am ready to brainstorm ideas. what do you have in mind?"
+        user_input = input(
+            "\n\nI am ready to brainstorm ideas. what do you have in mind?"
+        )
+
         user_message = HumanMessage(content=user_input)
 
     else:
-        user_input = input(
-            "\nWhat do you think of this? Want me to update/save it?"
-        )
+        user_input = input("\nWhat do you think of this? Want me to update/save it?")
         print(f"\nUser input: {user_input}")
         user_message = HumanMessage(content=user_input)
 
@@ -164,11 +165,14 @@ def should_continue(state: AgentState) -> str:
         return "continue"
 
     for message in reversed(messages):
-        message_content_lower = message.content.lower() # type: ignore[reportAttributeAccessIssue]
+        message_content_lower = message.content.lower()  # type: ignore[reportAttributeAccessIssue]
         if (
             isinstance(message, ToolMessage)
-            and "saved" in message_content_lower    
-        and ("document" in message_content_lower or "content" in message_content_lower)  
+            and "saved" in message_content_lower
+            and (
+                "document" in message_content_lower
+                or "content" in message_content_lower
+            )
         ):
 
             return "end"  # If the last message indicates the document has been saved, end the
@@ -236,3 +240,4 @@ def run_brainstormer_agent():
 
 if __name__ == "__main__":
     run_brainstormer_agent()  # Run the brainstorming agent when the script is executed
+
