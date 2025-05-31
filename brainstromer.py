@@ -89,4 +89,47 @@ def save(filename: str) -> str:
     
 tools = [update, save] 
 
+model = ChatOpenAI(
+    model="gpt-4o",  # Specify the model to use
+    temperature=0.7  # Set the temperature for response variability
+).bind_tools(tools)  # Bind the tools to the model for use in the graph
+
+def brainstormer_agent(state: AgentState) -> AgentState:
+    """Creates a state graph for the brainstorming agent."""
+    system_prompt = f"""
+        You are a brainstorming agent. Your task is to generate ideas based on the provided prompt.
+        You will receive a prompt from the user, and you should respond with a list of related ideas or suggestions.
+           - If you receive a prompt that is not related to brainstorming, respond with an appropriate message.
+           - Always respond with a clear and concise list of ideas.
+           - If the user wants to update or modify content, use the `update` tool to append new ideas.
+           - If the user wants to save the discussion, use the `save` tool with a filename.
+           - Make sure to always show the content document state after modifications.
+        the current discussion content is: {discussion_content}
+    """
+    # Define the system message to set the context for the agent
+    system_message = SystemMessage(content=system_prompt)
+    
+    if not state['messages']:
+        user_input = "\n\nI am ready to brainstorm ideas. what do you have in mind?"
+        user_message = HumanMessage(content=user_input)
+        
+    else:
+        user_input = input("\nWhat would you like to do with the brainstorming session? ")
+        print(f"\nUser input: {user_input}")
+        user_message = HumanMessage(content=user_input)
+
+    all_messages = [system_message] + list(state["messages"]) + [user_message] # Combine all messages for the model input
+    
+    response = model.invoke(input=all_messages)  # Invoke the model with the combined messages
+    
+    print(f"\nAI response: {response.content}")
+    if hasattr(response, 'tool_calls') and response.tool_calls: # type: ignore[reportAttributeAccessIssue]
+        # If the response contains tool calls, process them
+        print(f"\nTool calls: { [tc["name"] for tc in  response.tool_calls]}") # type: ignore[reportAttributeAccessIssue]
+
+
+    return {"messages": list(state["messages"]) + [user_message, response]}  # Return the updated state with the new messages
+
+
+
 
