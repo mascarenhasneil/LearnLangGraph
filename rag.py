@@ -244,12 +244,40 @@ graph.add_conditional_edges(
 )
 
 # Add an edge from retriever_node back to llm_node for further processing
-graph.add_edge(
-    start_key="retriever_node", 
-    end_key="llm_node"
-)
+graph.add_edge(start_key="retriever_node", end_key="llm_node")
 
 graph.set_entry_point(key="llm_node")
 
 # Compile the graph to create the RAG agent
 rag_agent = graph.compile()
+
+
+def run_agent():
+    """Runs the RAG agent to interact with the user."""
+    print(
+        "Welcome to the RAG Agent! Ask me anything about Artificial Intelligence Engineering."
+    )
+    print("Type 'exit/quit' to end the conversation.")
+
+    state = {"messages": []}  # Initialize the agent state with an empty message list
+    # Start the conversation loop
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() in ["exit", "quit"]:
+            print("Ending conversation. Goodbye!")
+            break
+
+        # Append the user's message to the state
+        state["messages"].append(HumanMessage(content=user_input))
+
+        # Run the agent with the current state
+        response_stream = rag_agent.invoke(input=state)
+
+        # Print the response from the agent
+        for message in response_stream["messages"]:
+            print("\nAI:")
+            message.pretty_print()  # Print each message in a readable format
+
+
+if __name__ == "__main__":
+    run_agent()  # Run the RAG agent when the script is executed
