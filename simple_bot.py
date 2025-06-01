@@ -1,5 +1,6 @@
 """
-Simple Bot - Integrating Language Models with a Graph-based Workflow
+Agent I: Simple Bot - Integrating Language Models with a Graph-based Workflow (Not exactly an agent but a foundation for Agent AI)
+Author: Neil Mascarenhas
 
 Objectives:
  1. Define the AgentState structure using a list of HumanMessage objects to represent the
@@ -32,59 +33,66 @@ from dotenv import (
     load_dotenv,
 )  # we use it for loading environment variables secrets and stuff.
 
-
 load_dotenv()  # Load environment variables from a .env file
 
 
-class AgentState(TypedDict):
-    """Initial state of the agent with a list of human messages."""
+class SimpleBot:
+    """Agent I: Simple Bot - Integrating Language Models with a Graph-based Workflow (Not exactly an agent but a foundation for Agent AI)"""
 
-    messages: List[HumanMessage]
+    def __init__(self) -> None:
+        # Initialize the language model for efficient handling of language generation tasks.
+        self.llm = ChatOpenAI(
+            model="gpt-4.1-nano",
+            temperature=0.0,
+        )
+        # Construct and compile a state graph using the LangGraph library to model the agent's processing workflow.
+        self.agent = self._setup_agent()
 
+    class AgentState(TypedDict):
+        """Initial state of the agent with a list of human messages."""
+        messages: List[HumanMessage]
 
-llm = ChatOpenAI(
-    model="gpt-4.1-nano",
-    temperature=0.0,
-)
+    def process(self, state: "SimpleBot.AgentState") -> "SimpleBot.AgentState":
+        """Process the agent's state and generate a response"""
+        response = self.llm.invoke(state["messages"])
+        print(f"\nAI: {response.content}\n")
+        return state
 
+    def _setup_agent(self) -> object:
+        """Setup the state graph and compile the agent."""
+        graph = StateGraph(SimpleBot.AgentState)
+        graph.add_node(node="process", action=self.process)
+        graph.add_edge(start_key=START, end_key="process")
+        graph.add_edge(start_key="process", end_key=END)
+        return graph.compile()
 
-def process(state: AgentState) -> AgentState:
-    """Process the agent's state and generate a response"""
-
-    response = llm.invoke(state["messages"])
-    print(f"\nAI: {response.content}\n")
-
-    return state
-
-
-graph = StateGraph(AgentState)
-graph.add_node(node="process", action=process)
-graph.add_edge(start_key=START, end_key="process")
-graph.add_edge(start_key="process", end_key=END)
-
-agent = graph.compile()
-
-chat_type = input("""Welcome to the Simple Bot!
+    def run(self) -> None:
+        chat_type = input(
+            """Welcome to the Simple Bot!
     Choose a chat type:
     1. Only 1 Human Message
     2. Chat with AI Messages
-    Enter 1 or 2: 
-"""
-)
+    Enter 1 or 2: """
+        )
 
-# Validate user input for chat type if not 1 or 2 then exit the program
-if chat_type not in ["1", "2"]:
-    print("Invalid choice. Please enter 1 or 2.")
-    exit()
+        # Validate user input for chat type if not 1 or 2 then exit the program
+        if chat_type not in ["1", "2"]:
+            print("Invalid choice. Please enter 1 or 2.")
+            exit()
 
-user_input = input("You: ")
-
-# Get user input based on the selected chat type
-if chat_type == "2":
-    # initializes a simple agent that processes human messages using a GPT-4.1 nano model.
-    while user_input.lower() != "exit":
-        agent.invoke(input={"messages": [HumanMessage(content=user_input)]})
         user_input = input("You: ")
-else:
-    agent.invoke(input={"messages": [HumanMessage(content=user_input)]})
-    exit()
+
+        # Get user input based on the selected chat type
+        if chat_type == "2":
+            # initializes a simple agent that processes human messages using a GPT-4.1 nano model.
+            while user_input.lower() != "exit":
+                self.agent.invoke(input={"messages": [HumanMessage(content=user_input)]})   # type: ignore[reportAttributeAccessIssue]
+                user_input = input("You: ")
+        else:
+            self.agent.invoke(input={"messages": [HumanMessage(content=user_input)]})       # type: ignore[reportAttributeAccessIssue]
+            exit()
+
+
+if __name__ == "__main__":
+    bot = SimpleBot()
+    bot.run()
