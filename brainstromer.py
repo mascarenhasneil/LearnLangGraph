@@ -1,5 +1,7 @@
 """
-Brainstormer.py
+Agent IV: Brainstormer Agent - AI Assistant
+Author: Neil Mascarenhas
+
 
 This module provides a class for brainstorming ideas based on a given prompt.
 It sets up the foundation for managing a conversation state where brainstorming
@@ -55,9 +57,6 @@ from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from a .env file
 
 
-brainstorming_content: str = ""
-
-
 class AgentState(TypedDict):
     """State of the agent containing a list of conversation messages."""
 
@@ -66,55 +65,55 @@ class AgentState(TypedDict):
     ]  # Using BaseMessage to allow for different message types, helps manage state updates automatically
 
 
-@tool
-def update(content: str) -> str:
-    """Updates the Brainstorming content with the provided string.
+class BrainstormerAgent:
+    """Brainstormer Agent class to generate, update, and save brainstorming ideas."""
 
-    Args:
-        content (str): The content to update the Brainstorming with.
+    def __init__(self) -> None:
+        self.brainstorming_content: str = ""
+        # Bind the tools to the instance methods
+        self.tools = [self.update, self.save]
+        self.model = ChatOpenAI(
+            model="gpt-4.1-nano",  # Specify the model to use
+            temperature=0.7,  # Set the temperature for response variability
+        ).bind_tools(
+            self.tools
+        )  # Bind the tools to the model for use in the graph
 
-    Returns:
-        str: The updated Brainstorming content.
-    """
-    global brainstorming_content
-    brainstorming_content += f"\n{content}"
-    return brainstorming_content
+    @tool
+    def update(self, content: str) -> str:
+        """Updates the Brainstorming content with the provided string.
 
+        Args:
+            content (str): The content to update the Brainstorming with.
 
-@tool
-def save(filename: str) -> str:
-    """Saves the current Brainstorming content to a document file.
-    Args:
-        filename (str): The name of the document to save the Brainstorming content to.
+        Returns:
+            str: The updated Brainstorming content.
+        """
+        self.brainstorming_content += f"\n{content}"
+        return self.brainstorming_content
 
-    Returns:
-        str: A message indicating that the document has been saved.
-    """
-    global brainstorming_content
-    if not filename.endswith(".txt"):
-        filename += ".txt"
+    @tool
+    def save(self, filename: str) -> str:
+        """Saves the current Brainstorming content to a document file.
+        Args:
+            filename (str): The name of the document to save the Brainstorming content to.
 
-    try:
-        with open(filename, mode="w") as file:
-            file.write(brainstorming_content)
-        return f"Brainstorming content saved to {filename}."
-    except Exception as e:
-        return f"Error saving Brainstorming content to {filename}: {e}"
+        Returns:
+            str: A message indicating that the document has been saved.
+        """
+        if not filename.endswith(".txt"):
+            filename += ".txt"
 
+        try:
+            with open(filename, mode="w") as file:
+                file.write(self.brainstorming_content)
+            return f"Brainstorming content saved to {filename}."
+        except Exception as e:
+            return f"Error saving Brainstorming content to {filename}: {e}"
 
-tools = [update, save]
-
-model = ChatOpenAI(
-    model="gpt-4.1-nano",  # Specify the model to use
-    temperature=0.7,  # Set the temperature for response variability
-).bind_tools(
-    tools
-)  # Bind the tools to the model for use in the graph
-
-
-def brainstormer_agent(state: AgentState) -> AgentState:
-    """Creates a state graph for the brainstorming agent."""
-    system_prompt = f"""
+    def brainstormer_agent(self, state: AgentState) -> AgentState:
+        """Creates a state graph for the brainstorming agent."""
+        system_prompt = f"""
         You are a brainstorming agent. Your task is to generate ideas based on the provided prompt.
         You should respond with a list of related ideas or suggestions and help user to update or modify the the content. 
            - If you receive a prompt that is not related to brainstorming, respond with an appropriate message.
@@ -122,122 +121,117 @@ def brainstormer_agent(state: AgentState) -> AgentState:
            - If the user wants to update or modify content, use the `update` tool to append new ideas.
            - If the user wants to save the Brainstorming, use the `save` tool with a filename.
            - Make sure to always show the content document state after modifications.
-        the current Brainstorming content is: {brainstorming_content}
-    """
-    # Define the system message to set the context for the agent
-    system_message = SystemMessage(content=system_prompt)
+        the current Brainstorming content is: {self.brainstorming_content}
+        """
+        # Define the system message to set the context for the agent
+        system_message = SystemMessage(content=system_prompt)
 
-    if not state["messages"]:
-        user_input = input(
-            "\n\nI am ready to brainstorm ideas. what do you have in mind?"
-        )
+        if not state["messages"]:
+            user_input = input(
+                "\n\nI am ready to brainstorm ideas. what do you have in mind?"
+            )
 
-        user_message = HumanMessage(content=user_input)
+            user_message = HumanMessage(content=user_input)
 
-    else:
-        user_input = input("\nWhat do you think of this? Want me to update/save it?")
-        print(f"\nUser input: {user_input}")
-        user_message = HumanMessage(content=user_input)
+        else:
+            user_input = input("\nWhat do you think of this? Want me to update/save it?")
+            print(f"\nUser input: {user_input}")
+            user_message = HumanMessage(content=user_input)
 
-    all_messages = (
-        [system_message] + list(state["messages"]) + [user_message]
-    )  # Combine all messages for the model input
+        all_messages = (
+            [system_message] + list(state["messages"]) + [user_message]
+        )  # Combine all messages for the model input
 
-    response = model.invoke(
-        input=all_messages
-    )  # Invoke the model with the combined messages
+        response = self.model.invoke(
+            input=all_messages
+        )  # Invoke the model with the combined messages
 
-    print(f"\nAI response: {response.content}")
-    if hasattr(response, "tool_calls") and response.tool_calls:  # type: ignore[reportAttributeAccessIssue]
-        # If the response contains tool calls, process them
-        print(f"\nTool calls: { [tc["name"] for tc in  response.tool_calls]}")  # type: ignore[reportAttributeAccessIssue]
+        print(f"\nAI response: {response.content}")
+        if hasattr(response, "tool_calls") and response.tool_calls:  # type: ignore[reportAttributeAccessIssue]
+            # If the response contains tool calls, process them
+            print(f"\nTool calls: { [tc['name'] for tc in response.tool_calls]}")  # type: ignore[reportAttributeAccessIssue]
 
-    return {
-        "messages": list(state["messages"]) + [user_message, response]
-    }  # Return the updated state with the new messages
+        return {
+            "messages": list(state["messages"]) + [user_message, response]
+        }  # Return the updated state with the new messages
 
+    def should_continue(self, state: AgentState) -> str:
+        """Determines whether the conversation should continue based on the last message."""
+        messages: list[BaseMessage] = state["messages"]
 
-def should_continue(state: AgentState) -> str:
-    """Determines whether the conversation should continue based on the last message."""
-    messages: str = state["messages"]
+        if not messages:
+            return "continue"
 
-    if not messages:
+        for message in reversed(messages):
+            message_content_lower = message.content.lower()  # type: ignore[reportAttributeAccessIssue]
+            if (
+                isinstance(message, ToolMessage)
+                and "saved" in message_content_lower
+                and (
+                    "document" in message_content_lower
+                    or "content" in message_content_lower
+                )
+            ):
+                return "end"  # If the last message indicates the document has been saved, end the
+
         return "continue"
 
-    for message in reversed(messages):
-        message_content_lower = message.content.lower()  # type: ignore[reportAttributeAccessIssue]
-        if (
-            isinstance(message, ToolMessage)
-            and "saved" in message_content_lower
-            and (
-                "document" in message_content_lower
-                or "content" in message_content_lower
-            )
-        ):
+    def print_messages(self, messages: list[BaseMessage]) -> None:
+        """Prints the messages in the conversation."""
 
-            return "end"  # If the last message indicates the document has been saved, end the
+        if not messages:
+            return
 
-    return "continue"
+        for message in messages[-3:]:
+            if isinstance(message, ToolMessage):
+                print(f"Tool Message: {message.content}")
 
+    def create_agent(self) -> CompiledStateGraph:
+        """Creates and compiles the ReAct Agent graph with the defined nodes and tools.
+        Returns:
+            object: The compiled agent ready for interaction.
+        """
+        graph = StateGraph(AgentState)
+        graph.set_entry_point(
+            "brainstormer_agent"  # Set the entry point of the graph to the brainstormer_agent node
+        )  # Set the entry point of the graph to the agent_node node
 
-def print_messages(messages: list[BaseMessage]):
-    """Prints the messages in the conversation."""
+        graph.add_node(
+            node="brainstormer_agent", action=self.brainstormer_agent
+        )  # Add the agent node with the brainstorming action
+        tool_node = ToolNode(tools=self.tools)
+        graph.add_node(node="tools", action=tool_node)
 
-    if not messages:
-        return
+        graph.add_conditional_edges(
+            source="tools",
+            path=self.should_continue,
+            path_map={
+                "continue": "brainstormer_agent",  # If the conversation should continue, loop back to the brainstormer_agent node
+                "end": END,
+            },
+        )
 
-    for message in messages[-3:]:
-        if isinstance(message, ToolMessage):
-            print(f"Tool Message: {message.content}")
+        graph.add_edge(
+            start_key="brainstormer_agent", end_key="tools"
+        )  # Connect the tools node back to the brainstormer_agent node
 
+        agent = graph.compile()  # Compile the graph to create the agent
+        return agent
 
-def create_agent() -> CompiledStateGraph:
-    """Creates and compiles the ReAct Agent graph with the defined nodes and tools.
-    Returns:
-        object: The compiled agent ready for interaction.
-    """
-    graph = StateGraph(AgentState)
-    graph.set_entry_point(
-        "brainstormer_agent"  # Set the entry point of the graph to the brainstormer_agent node
-    )  # Set the entry point of the graph to the agent_node node
+    def run(self) -> None:
+        """Runs the brainstorming agent."""
+        agent = self.create_agent()  # Create the agent
+        state: AgentState = {
+            "messages": []
+        }  # Initialize the state with an empty message list
 
-    graph.add_node(
-        node="brainstormer_agent", action=brainstormer_agent
-    )  # Add the agent node with the brainstorming action
-    tool_node = ToolNode(tools=tools)
-    graph.add_node(node="tools", action=tool_node)
+        for step in agent.stream(input=state, stream_mode="values"):
+            if "messages" in step:
+                self.print_messages(step["messages"])
 
-    graph.add_conditional_edges(
-        source="tools",
-        path=should_continue,
-        path_map={
-            "continue": "brainstormer_agent",  # If the conversation should continue, loop back to the brainstormer_agent node
-            "end": END,
-        },
-    )
-
-    graph.add_edge(
-        start_key="brainstormer_agent", end_key="tools"
-    )  # Connect the tools node back to the brainstormer_agent node
-
-    agent = graph.compile()  # Compile the graph to create the agent
-    return agent
-
-
-def run_brainstormer_agent():
-    """Runs the brainstorming agent."""
-    agent = create_agent()  # Create the agent
-    state: AgentState = {
-        "messages": []
-    }  # Initialize the state with an empty message list
-
-    for step in agent.stream(input=state, stream_mode="values"):
-        if "messages" in step:
-            print_messages(step["messages"])
-
-    print("\nBrainstorming session ended. Thank you for using the Brainstormer agent!")
+        print("\nBrainstorming session ended. Thank you for using the Brainstormer agent!")
 
 
 if __name__ == "__main__":
-    run_brainstormer_agent()  # Run the brainstorming agent when the script is executed
-
+    agent = BrainstormerAgent()
+    agent.run()  # Run the brainstorming agent when the script is executed
