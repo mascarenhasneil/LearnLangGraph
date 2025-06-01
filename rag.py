@@ -107,3 +107,35 @@ retriever = vector_store.as_retriever(
     search_type="similarity",  # Use similarity search to find relevant documents
     search_kwargs={"k": 3},  # Retrieve the top 3 most relevant documents
 )
+
+
+# retriever tool
+@tool
+def retriever_tool(query: str) -> str:
+    """Retrieves relevant information on artificial intelligence based on the user's query.
+
+    Args:
+        query (str): The user's query to search for relevant information.
+
+    Returns:
+        str: A string containing the retrieved information.
+    """
+    try:
+        docs = retriever.invoke(query)
+        if not docs:
+            return "No relevant information found for Artificial Intelligence."
+
+        results = []
+        for i, doc in enumerate(docs, start=1):
+            # Format the retrieved document content
+            results.append(f"Document {i}:\n{doc.page_content}\n")
+        return "\n".join(results)
+    except Exception as e:
+        return f"Error retrieving information: {e}"
+
+
+tools = [retriever_tool]  # List of tools available to the agent
+
+llm = llm.bind_tools(tools)  # Bind the tools to the language model for use in the graph
+
+
