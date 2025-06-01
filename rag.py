@@ -188,3 +188,46 @@ def call_llm(state: AgentState) -> AgentState:
     return {"messages": [response]}  # Return the updated state with the AI response
 
 
+
+# Retriever Agent
+def retriever_agent(state: AgentState) -> AgentState:
+    """
+    Processes the agent's state and generates a response using the retriever tool.
+    Args:
+        state (AgentState): The current state of the agent containing conversation messages.
+    Returns:
+        AgentState: The updated agent state with the retriever tool response appended.
+    """
+    # Get the tool calls from the last message
+    tool_calls = state["messages"][-1].tool_calls  # type: ignore[reportAttributeAccessIssue]
+
+    # Process each tool call and generate a response
+    messages = []
+    for tool_name in tool_calls:
+        print(
+            f"Calling Tool: {tool_name["name"]} with query: {tool_name["args"].get("query", "No query provided")}"
+        )
+
+        if (
+            not tool_name["name"] in tools_dict
+        ):  # Checks if the tools are are valid and present.
+            print(f"Tool {tool_name['name']} not found in known tools.")
+            result = f"Tool {tool_name['name']} not found. Retry and select tool from list of Available tools"
+
+        else:
+            result = tools_dict[tool_name["name"]].invoke(
+                input=tool_name["args"].get("query", "")
+            )
+            print(f"Tool Result length: {len(str(result))} characters")
+
+        messages.append(
+            ToolMessage(
+                tool_call_id=tool_name["id"],
+                name=tool_name["name"],
+                content=str(result),
+            )
+        )
+
+    print("Tool Execution is complete, retuning to the model!")
+    # Update the agent state with the new responses
+    return {"messages": messages}
