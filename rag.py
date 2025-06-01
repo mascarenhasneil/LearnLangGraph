@@ -44,3 +44,66 @@ from langchain_chroma import Chroma  # Importing Chroma for vector storage and r
 from dotenv import load_dotenv
 
 load_dotenv()  # Load environment variables from a .env file
+
+
+llm = ChatOpenAI(
+    model="gpt-4.1-nano",  # Specify the model to use
+    temperature=0,  # Set the temperature for response variability
+)
+
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small"
+)  # Initialize embeddings model for text vectorization
+
+pdf_content_path = "artificial_intelligence_engineering.pdf"
+
+
+if not os.path.exists(pdf_content_path):
+    raise FileNotFoundError(f"PDF file {pdf_content_path} does not exist.")
+
+pdf_loader = PypdfLoader(pdf_content_path)  # Load the PDF document
+
+try:
+    pages = pdf_loader.load()
+    print(f"Loaded {len(pages)} pages from the PDF.")
+except Exception as e:
+    raise RuntimeError(f"Failed to load PDF: {e}")
+
+# chunking process
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,  # Size of each text chunk
+    chunk_overlap=200,  # Overlap between chunks
+)
+
+pages_split = text_splitter.split_documents(pages)  # Split the loaded pages into chunks
+if not pages_split:
+    raise ValueError("No text chunks were created from the PDF document.")
+
+persistent_db_location = r"./chroma_db"  # Location for the Chroma vector store
+# if location does not exit create a new one
+if not os.path.exists(persistent_db_location):
+    os.makedirs(persistent_db_location)
+
+collection_name = "artificial_intelligence_engineering"
+
+try:
+    # Initialize Chroma vector store with the embedding function and persistent directory
+    vector_store = Chroma.from_documents(
+        documents=pages_split,
+        embedding=embeddings,
+        persist_directory=persistent_db_location,
+        collection_name=collection_name,
+    )
+    # Add the split pages to the Chroma vector store
+    vector_store.add_documents(pages_split)
+    print(f"Added {len(pages_split)} documents to the Chroma vector store.")
+
+except Exception as e:
+    print(f"Error initializing Chroma vector store: {e}")
+    raise
+
+# create a retriever
+retriever = vector_store.as_retriever(
+    search_type="similarity",  # Use similarity search to find relevant documents
+    search_kwargs={"k": 3},  # Retrieve the top 3 most relevant documents
+)
