@@ -1,9 +1,12 @@
 """
+Agent II: Chatbot Agent.
+Author: Neil Mascarenhas
+
 Chatbot Agent with Enhanced Conversational Memory
 
 This module powers an interactive chatbot agent leveraging LangChain's ChatOpenAI
-model (GPT-4.1-nano) to deliver context-aware responses. It maintains a complete 
-conversation history using structured message types (HumanMessage and AIMessage) and 
+model (GPT-4.1-nano) to deliver context-aware responses. It maintains a complete
+conversation history using structured message types (HumanMessage and AIMessage) and
 manages state transitions through a state graph approach.
 
 Core Features:
@@ -22,7 +25,7 @@ Workflow:
     5. Upon termination, the complete conversation log is saved to a text file.
 
 Usage:
-    Execute this module to start an interactive conversation loop. Ensure that all 
+    Execute this module to start an interactive conversation loop. Ensure that all
     required environment variables are set in a .env file prior to running the module.
 """
 
@@ -34,70 +37,95 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Load environment variables from a .env file
 
+
 # Define the agent state with a list of messages.
 class AgentState(TypedDict):
     """State of the agent containing a list of conversation messages."""
+
     messages: List[Union[HumanMessage, AIMessage]]
 
 
-# Initialize the ChatOpenAI model with desired configuration.
-llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0.0)
+class ChatBotAgent:
+    """Chatbot Agent with Enhanced Conversational Memory.
 
-
-def process(state: AgentState) -> AgentState:
-    """Processes the agent's state and generates an AI response.
-
-    Args:
-        state: The current state of the agent containing conversation messages.
-
-    Returns:
-        The updated agent state with the AI response appended.
+    This class powers an interactive chatbot agent leveraging LangChain's ChatOpenAI
+    model (GPT-4.1-nano) to deliver context-aware responses. It maintains a complete
+    conversation history using structured message types (HumanMessage and AIMessage)
+    and manages state transitions through a state graph approach.
     """
-    response = llm.invoke(state["messages"])
-    state["messages"].append(AIMessage(content=response.content))
-    print(f"\nAI: {response.content}\n")
-    print(f"Conversation log: {state['messages']}")
-    return state
 
-def log_conversation(conversation_history: List[Union[HumanMessage, AIMessage]]) -> None:
-    """Saves the conversation history to a text file.
-    Args:
-        conversation_history: The list of messages exchanged during the conversation.
-    """
-    with open("conversation_log.txt", "w") as log_file:
-        log_file.write("Conversation History:\n")
-        for message in conversation_history:
-            if isinstance(message, HumanMessage):
-                log_file.write(f"You: {message.content}\n")
-            elif isinstance(message, AIMessage):
-                log_file.write(f"AI: {message.content}\n")
-        log_file.write("\nEnd of conversation log.\n")
-    # Save the conversation history to a file
-    print("Conversation history saved to conversation_log.txt")
+    def __init__(self) -> None:
+        # Initialize the ChatOpenAI model with desired configuration.
+        self.llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0.0)
+
+        # Initialize the state graph and compile the agent.
+        graph = StateGraph(AgentState)
+        graph.add_node(node="process", action=self.process)
+        graph.add_edge(start_key=START, end_key="process")
+        graph.add_edge(start_key="process", end_key=END)
+        self.agent = graph.compile()
+
+        # Initialize conversation history.
+        self.conversation_history: List[Union[HumanMessage, AIMessage]] = []
+
+    def process(self, state: AgentState) -> AgentState:
+        """Processes the agent's state and generates an AI response.
+
+        Args:
+            state: The current state of the agent containing conversation messages.
+
+        Returns:
+            The updated agent state with the AI response appended.
+        """
+        response = self.llm.invoke(state["messages"])
+        state["messages"].append(AIMessage(content=response.content))
+        print(f"\nAI: {response.content}\n")
+        print(f"Conversation log: {state['messages']}")
+        return state
+
+    def log_conversation(
+        self, conversation_history: List[Union[HumanMessage, AIMessage]]
+    ) -> None:
+        """Saves the conversation history to a text file.
+
+        Args:
+            conversation_history: The list of messages exchanged during the conversation.
+        """
+        with open("conversation_log.txt", "w") as log_file:
+            log_file.write("Conversation History:\n")
+            for message in conversation_history:
+                if isinstance(message, HumanMessage):
+                    log_file.write(f"You: {message.content}\n")
+                elif isinstance(message, AIMessage):
+                    log_file.write(f"AI: {message.content}\n")
+            log_file.write("\nEnd of conversation log.\n")
+        # Save the conversation history to a file
+        print("Conversation history saved to conversation_log.txt")
+
+    def run(self) -> None:
+        """Runs the conversation loop for the chatbot agent.
+
+        It initializes the conversation loop, processes user input, and manages the
+        conversation flow. The conversation continues until the user types 'exit', at which
+        point the conversation history is saved.
+        """
+        user_input = input(
+            "\n\nWelcome to the Chatbot! Type your message (or 'exit' to quit): "
+        )
+
+        while user_input.lower() != "exit":
+            self.conversation_history.append(HumanMessage(content=user_input))
+            self.agent.invoke({"messages": self.conversation_history})
+            user_input = input("\nYou: ")
+
+        print("\nThank you for chatting! Saving conversation history...")
+        self.log_conversation(conversation_history=self.conversation_history)
 
 
 def main() -> None:
-    """Main function to run the conversation loop for the chatbot agent. 
-    It initializes the state graph, processes user input, and manages the conversation flow.
-    The conversation continues until the user types 'exit', at which point the conversation history is saved.
-    """
-    
-    graph = StateGraph(AgentState)
-    graph.add_node(node="process", action=process)
-    graph.add_edge(start_key=START, end_key="process")
-    graph.add_edge(start_key="process", end_key=END)
-    agent = graph.compile()
-
-    conversation_history: List[Union[HumanMessage, AIMessage]] = []
-    user_input = input("\n\nWelcome to the Chatbot! Type your message (or 'exit' to quit): ")
-
-    while user_input.lower() != "exit":
-        conversation_history.append(HumanMessage(content=user_input))
-        agent.invoke({"messages": conversation_history})
-        user_input = input("\nYou: ")
-        
-    print("\nThank you for chatting! Saving conversation history...")
-    log_conversation(conversation_history=conversation_history)
+    """Main function to run the chatbot agent."""
+    agent = ChatBotAgent()
+    agent.run()
 
 
 if __name__ == "__main__":
