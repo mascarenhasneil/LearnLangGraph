@@ -12,15 +12,15 @@ from typing import (
     Sequence,  # defining sequences of messages, To automatically handle the state updates for sequences such as by adding new messages to a chat history.
 )
 from langchain_core.messages import (
-    HumanMessage,  # defining human messages in the chat
-    BaseMessage,  # defining the base message type, including common attributes for all messages
+    HumanMessage,   # defining human messages in the chat
+    BaseMessage,    # defining the base message type, including common attributes for all messages
     SystemMessage,  # defining the system message type, # which can be used to set the context or instructions for the agent
-    AIMessage,  # defining AI messages in the chat
-    ToolMessage,  # defining tool messages in the chat
+    AIMessage,      # defining AI messages in the chat
+    ToolMessage,    # defining tool messages in the chat
 )
 from langchain_openai import (
-    ChatOpenAI,  # OpenAI's Chat model for generating responses
-    OpenAIEmbeddings,  # Embeddings model for converting text into vector representations
+    ChatOpenAI,         # OpenAI's Chat model for generating responses
+    OpenAIEmbeddings,   # Embeddings model for converting text into vector representations
 )
 from langchain_core.tools import tool
 from langgraph.graph import (
@@ -34,8 +34,8 @@ from operator import (
     add as add_messages,
 )  # Importing add_messages to automatically handle the state updates for sequences such as by adding new messages to a chat history
 from langchain_community.document_loaders import (
-    PypdfLoader,
-)  # Importing PypdfLoader to load PDF documents
+    PyPDFLoader,
+)  # Importing PyPDFLoader to load PDF documents
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )  # Importing RecursiveCharacterTextSplitter to split text into manageable chunks
@@ -47,13 +47,14 @@ load_dotenv()  # Load environment variables from a .env file
 
 
 llm = ChatOpenAI(
-    model="gpt-4.1-nano",  # Specify the model to use
-    temperature=0,  # Set the temperature for response variability
+    model="gpt-4.1-nano",   # Specify the model to use
+    temperature=0,          # Set the temperature for response variability
 )
 
+# Initialize embeddings model for text vectorization
 embeddings = OpenAIEmbeddings(
     model="text-embedding-3-small"
-)  # Initialize embeddings model for text vectorization
+)  
 
 pdf_content_path = "artificial_intelligence_engineering.pdf"
 
@@ -61,7 +62,7 @@ pdf_content_path = "artificial_intelligence_engineering.pdf"
 if not os.path.exists(pdf_content_path):
     raise FileNotFoundError(f"PDF file {pdf_content_path} does not exist.")
 
-pdf_loader = PypdfLoader(pdf_content_path)  # Load the PDF document
+pdf_loader = PyPDFLoader(pdf_content_path)  # Load the PDF document
 
 try:
     pages = pdf_loader.load()
@@ -104,8 +105,8 @@ except Exception as e:
 
 # create a retriever
 retriever = vector_store.as_retriever(
-    search_type="similarity",  # Use similarity search to find relevant documents
-    search_kwargs={"k": 3},  # Retrieve the top 3 most relevant documents
+    search_type="similarity",   # Use similarity search to find relevant documents
+    search_kwargs={"k": 3},     # Retrieve the top 3 most relevant documents
 )
 
 
@@ -134,9 +135,9 @@ def retriever_tool(query: str) -> str:
         return f"Error retrieving information: {e}"
 
 
-tools = [retriever_tool]  # List of tools available to the agent
+tools = [retriever_tool]        # List of tools available to the agent
 
-llm = llm.bind_tools(tools)  # Bind the tools to the language model for use in the graph
+llm = llm.bind_tools(tools)     # Bind the tools to the language model for use in the graph
 
 
 class AgentState(TypedDict):
