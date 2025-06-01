@@ -139,3 +139,30 @@ tools = [retriever_tool]  # List of tools available to the agent
 llm = llm.bind_tools(tools)  # Bind the tools to the language model for use in the graph
 
 
+class AgentState(TypedDict):
+    """State of the agent containing a list of conversation messages."""
+
+    messages: Annotated[
+        Sequence[BaseMessage], add_messages
+    ]  # Using BaseMessage to allow for different message types, helps manage state updates automatically
+
+
+def should_continue(state: AgentState) -> bool:
+    """Checks if the last message was a tool call and to continue or not"""
+    if not state["messages"]:
+        return False  # Stop if there are no messages
+
+    last_message = state["messages"][-1]
+    # Continue if the last message is from tool
+    return hasattr(last_message, "tool_calls") and len(last_message.tool_calls) > 0  # type: ignore[reportAttributeAccessIssue]
+
+
+system_prompt = """You are an intelligent AI assistant who answers questions about Artificial Intelligence Engineering based on the PDF document loaded into your knowledge base. Use the retriever tool available to answer questions about the Artificial Intelligence Engineering data. You can make multiple calls if needed. If you need to look up some information before asking a follow up question, you are allowed to do that! Please always cite the specific parts of the documents you use in your answers.
+"""
+
+tools_dict = {
+    tool.name: tool for tool in tools
+}  # Create a dictionary of tools for easy access
+
+
+
