@@ -1,5 +1,3 @@
-# https://github.com/Vaibhav807/LangGraph-Course/blob/main/requirements.txt
-
 langgraph
 langchain
 ipython
@@ -10,3 +8,4 @@ typing
 chromadb
 langchain_chroma
 ipykernel
+pypdf

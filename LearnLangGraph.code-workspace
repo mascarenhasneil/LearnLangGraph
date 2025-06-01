@@ -68,7 +68,8 @@
             "ipynb",
             "jupyternotebook",
             "subtractor",
+            "brainstormer",
             "Agentexercise"
         ]
-    }   
+    }
 }

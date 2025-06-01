@@ -199,3 +199,6 @@ cython_debug/
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+# Chroma DB
+chroma_db/**/*.bin
