@@ -188,7 +188,6 @@ def call_llm(state: AgentState) -> AgentState:
     return {"messages": [response]}  # Return the updated state with the AI response
 
 
-
 # Retriever Agent
 def retriever_agent(state: AgentState) -> AgentState:
     """
@@ -231,3 +230,26 @@ def retriever_agent(state: AgentState) -> AgentState:
     print("Tool Execution is complete, retuning to the model!")
     # Update the agent state with the new responses
     return {"messages": messages}
+
+
+graph = StateGraph(AgentState)  # Create a state graph for the agent
+graph.add_node(node="llm_node", action=call_llm)  # Add the LLM node to the graph
+graph.add_node(node="retriever_node", action=retriever_agent)
+
+# If should_continue is True, go to retriever_node, else end the graph
+graph.add_conditional_edges(
+    source="llm_node",
+    path=should_continue,
+    path_map={True: "retriever_node", False: END},
+)
+
+# Add an edge from retriever_node back to llm_node for further processing
+graph.add_edge(
+    start_key="retriever_node", 
+    end_key="llm_node"
+)
+
+graph.set_entry_point(key="llm_node")
+
+# Compile the graph to create the RAG agent
+rag_agent = graph.compile()
