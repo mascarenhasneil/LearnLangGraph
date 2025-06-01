@@ -69,7 +69,13 @@
             "jupyternotebook",
             "subtractor",
             "brainstormer",
-            "Agentexercise"
-        ]
+            "Agentexercise",
+            "langchain"
+        ],
+        "markdownlint.config": {
+            "MD024": {
+                "siblings_only": true,
+            },
+        }
     }
 }
