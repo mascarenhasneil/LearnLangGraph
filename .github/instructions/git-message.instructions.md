@@ -2,8 +2,6 @@
 description: "This file contains the instructions for the commit message format."
 ---
 
-## Use Conentional Commits
-
 ## Commit Message Formats
 
 ### Default
@@ -20,7 +18,7 @@ description: "This file contains the instructions for the commit message format.
 ### Types
 - `feat` Commits, that add or remove a new feature to the API or UI
 - `fix` Commits, that fix a API or UI bug of a preceded `feat` commit
-- `refactor` Commits, that rewrite/restructure your code, however do not change any API or UI behaviour
+- `refactor` Commits, that rewrite/restructure your code, however do not change any API or UI behavior
 - `perf` Commits are special `refactor` commits, that improve performance
 - `style` Commits, that do not affect the meaning (white-space, formatting, missing semi-colons, etc)
 - `test` Commits, that add missing tests or correcting existing tests
@@ -29,7 +27,7 @@ description: "This file contains the instructions for the commit message format.
 - `ops` Commits, that affect operational components like infrastructure, deployment, backup, recovery, ...
 - `chore` Miscellaneous commits e.g. modifying `.gitignore`
 
-### Inital Commit 
+### Initial Commit 
 ```
 chore: init
 ```
@@ -84,7 +82,7 @@ The `footer` should contain any information about **Breaking Changes** and is al
 
   refers to JIRA-1337
 
-  BREAKING CHANGES: ticket enpoints no longer supports list all entites.
+  BREAKING CHANGES: ticket endpoints no longer supports list all entities.
   ```
 - ```
   fix(shopping-cart): prevent order an empty shopping cart
@@ -98,7 +96,7 @@ The `footer` should contain any information about **Breaking Changes** and is al
   The error occurred because of <reasons>.
   ```
 - ```
-  perf: decrease memory footprint for determine uniqe visitors by using HyperLogLog
+  perf: decrease memory footprint for determine unique visitors by using HyperLogLog
   ```
 - ```
   build: update dependencies

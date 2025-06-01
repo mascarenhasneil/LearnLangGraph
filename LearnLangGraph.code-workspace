@@ -51,23 +51,25 @@
         ],
         "github.copilot.chat.testGeneration.instructions": [
             {
-                "file": ".github/instructions/testing-xunit.instructions.md"
+                "file": ".github/instructions/testing-unit.instructions.md"
             }
         ],
         "notebook.defaultFormatter": "ms-python.black-formatter",
         "python.terminal.activateEnvInCurrentTerminal": true,
         "python.analysis.typeCheckingMode": "basic",
-    
-    "python.analysis.diagnosticSeverityOverrides": {
-        "reportOptionalMemberAccess": "none",
-        "reportAssignmentType": "none"
-    },
-    "python.analysis.autoFormatStrings": true,
-    "markdown-preview-enhanced.hideDefaultVSCodeMarkdownPreviewButtons": false,
-    "git.postCommitCommand": "none",
-    "cSpell.ignoreWords": [
-        "subtractor",
-        "brainstormer"
-    ]
-}
+        "python.analysis.diagnosticSeverityOverrides": {
+            "reportOptionalMemberAccess": "none",
+            "reportAssignmentType": "none"
+        },
+        "python.analysis.autoFormatStrings": true,
+        "markdown-preview-enhanced.hideDefaultVSCodeMarkdownPreviewButtons": false,
+        "git.postCommitCommand": "none",
+        "cSpell.ignoreWords": [
+            "ipynb",
+            "jupyternotebook",
+            "subtractor",
+            "brainstormer",
+            "Agentexercise"
+        ]
+    }
 }
