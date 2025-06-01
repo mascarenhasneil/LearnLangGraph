@@ -165,4 +165,26 @@ tools_dict = {
 }  # Create a dictionary of tools for easy access
 
 
+# the LLM Agent
+def call_llm(state: AgentState) -> AgentState:
+    """Generates a response from the language model based on the current state.
+
+    Args:
+        state (AgentState): The current state of the agent containing conversation messages.
+
+    Returns:
+        AgentState: The updated agent state with the AI response appended.
+    """
+
+    messages = list(state["messages"])
+    messages = [
+        SystemMessage(content=system_prompt)
+    ] + messages  # Add the system message to the conversation history
+
+    response = llm.invoke(
+        input=messages
+    )  # Invoke the language model with the conversation history
+
+    return {"messages": [response]}  # Return the updated state with the AI response
+
 
